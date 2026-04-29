@@ -5,6 +5,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require("axios");
 
 public_users.post("/register", (req, res) => {
 	//Write your code here
@@ -83,4 +84,28 @@ public_users.get("/review/:isbn", function (req, res) {
 	return res.status(200).json(books[isbn].reviews);
 });
 
+// Get books using Promise callbacks
+public_users.get("/books-promise", function (req, res) {
+	const fetchBooks = new Promise((resolve, reject) => {
+		if (books) {
+			resolve(books);
+		} else {
+			reject("Unable to retrieve books");
+		}
+	});
+
+	fetchBooks
+		.then((result) => res.status(200).json(result))
+		.catch((err) => res.status(500).json({ message: err }));
+});
+
+// Get books using async-await with Axios
+public_users.get("/books-async", async function (req, res) {
+	try {
+		const response = await axios.get("http://localhost:5000/");
+		return res.status(200).json(response.data);
+	} catch (err) {
+		return res.status(500).json({ message: err.message });
+	}
+});
 module.exports.general = public_users;
