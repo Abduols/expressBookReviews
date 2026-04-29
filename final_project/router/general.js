@@ -142,6 +142,43 @@ public_users.get("/title/:title", function (req, res) {
 	return res.status(200).json(matchingBooks);
 });
 
+// Get book by Title using Promise callbacks
+public_users.get("/title-promise/:title", function (req, res) {
+	const title = req.params.title;
+
+	const fetchByTitle = new Promise((resolve, reject) => {
+		const bookKeys = Object.keys(books);
+		const matchingBooks = [];
+
+		bookKeys.forEach((key) => {
+			if (books[key].title === title) {
+				matchingBooks.push(books[key]);
+			}
+		});
+
+		if (matchingBooks.length > 0) {
+			resolve(matchingBooks);
+		} else {
+			reject("No books found for this title");
+		}
+	});
+
+	fetchByTitle
+		.then((result) => res.status(200).json(result))
+		.catch((err) => res.status(404).json({ message: err }));
+});
+
+// Get book by Title using async-await with Axios
+public_users.get("/title-async/:title", async function (req, res) {
+	const title = req.params.title;
+	try {
+		const response = await axios.get(`http://localhost:5000/title/${title}`);
+		return res.status(200).json(response.data);
+	} catch (err) {
+		return res.status(404).json({ message: err.message });
+	}
+});
+
 //  Get book review
 public_users.get("/review/:isbn", function (req, res) {
 	//Write your code here
