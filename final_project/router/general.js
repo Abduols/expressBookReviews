@@ -43,7 +43,35 @@ public_users.get("/isbn/:isbn", function (req, res) {
 	//Write your code here
 	const isbn = req.params.isbn;
 
-	return res.status(300).json(books[isbn]);
+	return res.status(200).json(books[isbn]);
+});
+
+// Get book by ISBN using Promise callbacks
+public_users.get("/isbn-promise/:isbn", function (req, res) {
+	const isbn = req.params.isbn;
+
+	const fetchBook = new Promise((resolve, reject) => {
+		if (books[isbn]) {
+			resolve(books[isbn]);
+		} else {
+			reject("Book not found");
+		}
+	});
+
+	fetchBook
+		.then((result) => res.status(200).json(result))
+		.catch((err) => res.status(404).json({ message: err }));
+});
+
+// Get book by ISBN using async-await with Axios
+public_users.get("/isbn-async/:isbn", async function (req, res) {
+	const isbn = req.params.isbn;
+	try {
+		const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+		return res.status(200).json(response.data);
+	} catch (err) {
+		return res.status(404).json({ message: err.message });
+	}
 });
 
 // Get book details based on author
@@ -58,7 +86,7 @@ public_users.get("/author/:author", function (req, res) {
 			matchingBooks.push(books[key]);
 		}
 	});
-	return res.status(300).json(matchingBooks);
+	return res.status(200).json(matchingBooks);
 });
 
 // Get all books based on title
