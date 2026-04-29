@@ -89,6 +89,43 @@ public_users.get("/author/:author", function (req, res) {
 	return res.status(200).json(matchingBooks);
 });
 
+// Get book by Author using Promise callbacks
+public_users.get("/author-promise/:author", function (req, res) {
+	const author = req.params.author;
+
+	const fetchByAuthor = new Promise((resolve, reject) => {
+		const bookKeys = Object.keys(books);
+		const matchingBooks = [];
+
+		bookKeys.forEach((key) => {
+			if (books[key].author === author) {
+				matchingBooks.push(books[key]);
+			}
+		});
+
+		if (matchingBooks.length > 0) {
+			resolve(matchingBooks);
+		} else {
+			reject("No books found for this author");
+		}
+	});
+
+	fetchByAuthor
+		.then((result) => res.status(200).json(result))
+		.catch((err) => res.status(404).json({ message: err }));
+});
+
+// Get book by Author using async-await with Axios
+public_users.get("/author-async/:author", async function (req, res) {
+	const author = req.params.author;
+	try {
+		const response = await axios.get(`http://localhost:5000/author/${author}`);
+		return res.status(200).json(response.data);
+	} catch (err) {
+		return res.status(404).json({ message: err.message });
+	}
+});
+
 // Get all books based on title
 public_users.get("/title/:title", function (req, res) {
 	//Write your code here
